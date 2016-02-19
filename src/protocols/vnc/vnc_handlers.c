@@ -245,6 +245,30 @@ char* guac_vnc_get_password(rfbClient* client) {
     return ((vnc_guac_client_data*) gc->data)->password;
 }
 
+rfbCredential* guac_vnc_get_credential(rfbClient* client, int credentialType) {
+
+    rfbCredential* cred;
+
+    guac_client* gc = rfbClientGetClientData(client, __GUAC_CLIENT);
+    if (credentialType == rfbCredentialTypeX509) {
+        cred = malloc(sizeof(rfbCredential));
+
+        /* Do we actually need to strdup() below ?
+           If we can be sure that rfb_client->GetCredential callback is called once and only once
+           then we can pass pointers to orig strings and they will be freed by lib.
+           Else we need to strdup() to avoid double free()  
+           but who must to cleanup orig strings vnc_guac_client_free_handler() or rfbClientCleanup() ? */
+        cred->x509Credential.x509CACertFile     = ((vnc_guac_client_data*) gc->data)->credential.x509Credential.x509CACertFile;
+        cred->x509Credential.x509CACrlFile      = ((vnc_guac_client_data*) gc->data)->credential.x509Credential.x509CACrlFile;
+        cred->x509Credential.x509ClientCertFile = ((vnc_guac_client_data*) gc->data)->credential.x509Credential.x509ClientCertFile;
+        cred->x509Credential.x509ClientKeyFile  = ((vnc_guac_client_data*) gc->data)->credential.x509Credential.x509ClientKeyFile;
+        return cred;
+    }
+    else {
+        return NULL;
+    }
+}
+
 void guac_vnc_set_pixel_format(rfbClient* client, int color_depth) {
     switch(color_depth) {
         case 8:

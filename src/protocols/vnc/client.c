@@ -173,6 +173,9 @@ static rfbClient* __guac_vnc_get_client(guac_client* client) {
     /* Password */
     rfb_client->GetPassword = guac_vnc_get_password;
 
+    /* VeNCrypt X509 Credential */
+    rfb_client->GetCredential = guac_vnc_get_credential;
+
     /* Depth */
     guac_vnc_set_pixel_format(rfb_client, guac_client_data->color_depth);
 
@@ -310,6 +313,12 @@ int guac_client_init(guac_client* client, int argc, char** argv) {
     guac_client_data->port = atoi(argv[IDX_PORT]);
     guac_client_data->password = strdup(argv[IDX_PASSWORD]); /* NOTE: freed by libvncclient */
     guac_client_data->default_surface = NULL;
+
+    /* TODO config parsing for cert files instead */
+    guac_client_data->credential.x509Credential.x509CACertFile     = strdup("/etc/guacamole/ca-cert.pem");
+    guac_client_data->credential.x509Credential.x509CACrlFile      = strdup("/etc/guacamole/ca-crl.pem");
+    guac_client_data->credential.x509Credential.x509ClientCertFile = strdup("/etc/guacamole/client-cert.pem");
+    guac_client_data->credential.x509Credential.x509ClientKeyFile  = strdup("/etc/guacamole/client-key.pem");
 
     /* Set flags */
     guac_client_data->remote_cursor = (strcmp(argv[IDX_CURSOR], "remote") == 0);

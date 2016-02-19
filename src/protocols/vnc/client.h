@@ -220,6 +220,11 @@ typedef struct vnc_guac_client_data {
      */
     guac_iconv_write* clipboard_writer;
 
+    /**
+     * Cert filenames for VeNCrypt X509 Auth.
+     */
+    rfbCredential credential;
+
 } vnc_guac_client_data;
 
 #endif
