@@ -43,6 +43,8 @@
 #include "guac_ssh_user.h"
 #endif
 
+#include <pthread.h>
+
 /**
  * The maximum duration of a frame in milliseconds.
  */
@@ -224,6 +226,11 @@ typedef struct vnc_guac_client_data {
      * Cert filenames for VeNCrypt X509 Auth.
      */
     rfbCredential credential;
+
+    /**
+     * Lock which is acquired when WriteToTLS() in libvncserver is being called
+     */
+    pthread_mutex_t tls_write_lock;
 
 } vnc_guac_client_data;
 

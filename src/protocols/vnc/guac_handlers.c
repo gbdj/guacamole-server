@@ -41,6 +41,7 @@
 #include "pulse.h"
 #endif
 
+#include <pthread.h>
 #include <stdlib.h>
 
 /**
@@ -166,6 +167,8 @@ int vnc_guac_client_free_handler(guac_client* client) {
 
     /* Free surface */
     guac_common_surface_free(guac_client_data->default_surface);
+
+    pthread_mutex_destroy(&(guac_client_data->tls_write_lock));
 
     /* Free generic data struct */
     free(client->data);

@@ -39,6 +39,7 @@
 #define cairo_format_stride_for_width(format, width) (width*4)
 #endif
 
+#include <pthread.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -267,6 +268,25 @@ rfbCredential* guac_vnc_get_credential(rfbClient* client, int credentialType) {
     else {
         return NULL;
     }
+}
+
+rfbBool guac_vnc_lock_write_to_tls(rfbClient* client) {
+
+    guac_client* gc = rfbClientGetClientData(client, __GUAC_CLIENT);
+    // vnc_guac_client_data* guac_client_data = (vnc_guac_client_data*) gc->data;
+    /* Lock writes to TLS */
+    // if (client->GetCredential)
+        pthread_mutex_lock(&(((vnc_guac_client_data*) gc->data)->tls_write_lock));
+    return TRUE;
+}
+
+rfbBool guac_vnc_unlock_write_to_tls(rfbClient* client) {
+
+    guac_client* gc = rfbClientGetClientData(client, __GUAC_CLIENT);
+    /* Unlock writes to TLS */
+    // if (client->GetCredential)
+        pthread_mutex_unlock(&(((vnc_guac_client_data*) gc->data)->tls_write_lock));
+    return TRUE;
 }
 
 void guac_vnc_set_pixel_format(rfbClient* client, int color_depth) {

@@ -33,6 +33,8 @@ void guac_vnc_update(rfbClient* client, int x, int y, int w, int h);
 void guac_vnc_copyrect(rfbClient* client, int src_x, int src_y, int w, int h, int dest_x, int dest_y);
 char* guac_vnc_get_password(rfbClient* client);
 rfbCredential* guac_vnc_get_credential(rfbClient* client, int credentialType);
+rfbBool guac_vnc_lock_write_to_tls(rfbClient* client);
+rfbBool guac_vnc_unlock_write_to_tls(rfbClient* client);
 rfbBool guac_vnc_malloc_framebuffer(rfbClient* rfb_client);
 void guac_vnc_cut_text(rfbClient* client, const char* text, int textlen);
 void guac_vnc_client_log_info(const char* format, ...);

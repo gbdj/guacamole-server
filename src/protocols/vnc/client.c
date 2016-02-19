@@ -46,6 +46,7 @@
 #include <guacamole/protocol.h>
 #include <guacamole/socket.h>
 
+#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -176,6 +177,10 @@ static rfbClient* __guac_vnc_get_client(guac_client* client) {
     /* VeNCrypt X509 Credential */
     rfb_client->GetCredential = guac_vnc_get_credential;
 
+    /* Hooks for protection WriteToTLS() inside libvncserver by mutex */
+    rfb_client->LockWriteToTLS = guac_vnc_lock_write_to_tls;
+    rfb_client->UnlockWriteToTLS = guac_vnc_unlock_write_to_tls;
+
     /* Depth */
     guac_vnc_set_pixel_format(rfb_client, guac_client_data->color_depth);
 
@@ -292,6 +297,8 @@ int guac_client_init(guac_client* client, int argc, char** argv) {
 
     vnc_guac_client_data* guac_client_data;
 
+    pthread_mutexattr_t lock_attributes;
+
     int retries_remaining;
 
     /* Set up libvncclient logging */
@@ -319,6 +326,10 @@ int guac_client_init(guac_client* client, int argc, char** argv) {
     guac_client_data->credential.x509Credential.x509CACrlFile      = strdup("/etc/guacamole/ca-crl.pem");
     guac_client_data->credential.x509Credential.x509ClientCertFile = strdup("/etc/guacamole/client-cert.pem");
     guac_client_data->credential.x509Credential.x509ClientKeyFile  = strdup("/etc/guacamole/client-key.pem");
+
+    pthread_mutexattr_init(&lock_attributes);
+    pthread_mutexattr_setpshared(&lock_attributes, PTHREAD_PROCESS_SHARED);
+    pthread_mutex_init(&(guac_client_data->tls_write_lock), &lock_attributes);
 
     /* Set flags */
     guac_client_data->remote_cursor = (strcmp(argv[IDX_CURSOR], "remote") == 0);
